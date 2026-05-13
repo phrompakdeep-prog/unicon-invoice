@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ดาวน์โหลดใบกำกับภาษี | Unicon Container Services</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1a3a5c;
+      --accent: #e8a020;
+      --success: #1a6b3a;
+      --bg: #f0f4f8;
+      --shadow: 0 8px 40px rgba(26,58,92,0.15);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background: var(--navy);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo-icon { font-size: 28px; }
+    .logo-text h1 {
+      font-family: 'Prompt', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+    }
+    .logo-text p { font-size: 11px; color: rgba(255,255,255,0.6); }
+
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      max-width: 520px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .card-top {
+      background: linear-gradient(135deg, var(--navy), #264d7a);
+      padding: 40px 36px;
+      text-align: center;
+      position: relative;
+    }
+    .card-top::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: white;
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    }
+
+    .icon-wrap {
+      width: 80px; height: 80px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin: 0 auto 16px;
+    }
+    .card-top h2 {
+      font-family: 'Prompt', sans-serif;
+      font-size: 22px;
+      color: white;
+      margin-bottom: 6px;
+    }
+    .card-top p { font-size: 14px; color: rgba(255,255,255,0.7); }
+
+    .card-body { padding: 32px 36px; }
+
+    .invoice-info {
+      background: #f8fbff;
+      border: 1px solid #d0e0f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #e8eff8;
+      font-size: 14px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .label { color: #778899; }
+    .info-row .value { font-weight: 600; color: var(--navy); }
+    .info-row.total .value { font-size: 18px; color: var(--success); }
+
+    .btn-download {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, var(--navy), #264d7a);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Prompt', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(26,58,92,0.3);
+      text-decoration: none;
+      margin-bottom: 12px;
+    }
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(26,58,92,0.4);
+    }
+    .btn-download:active { transform: translateY(0); }
+    .btn-download:disabled {
+      background: #aaa;
+      transform: none;
+      cursor: not-allowed;
+    }
+
+    .download-note {
+      text-align: center;
+      font-size: 12px;
+      color: #9aafbb;
+      line-height: 1.6;
+    }
+
+    .downloaded-badge {
+      display: none;
+      background: linear-gradient(135deg, var(--success), #22874a);
+      color: white;
+      padding: 14px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 12px;
+    }
+    .downloaded-badge.show { display: block; }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--navy);
+    }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid #e0e8f0;
+      border-top-color: var(--navy);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-state {
+      text-align: center;
+      padding: 40px;
+    }
+    .error-state .emoji { font-size: 48px; margin-bottom: 12px; }
+    .error-state h3 { color: #c0392b; margin-bottom: 8px; }
+    .error-state p { color: #888; font-size: 14px; }
+
+    footer {
+      background: var(--navy);
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 14px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-icon">🚢</div>
+  <div class="logo-text">
+    <h1>Unicon Container Services</h1>
+    <p>ดาวน์โหลดใบกำกับภาษี</p>
+  </div>
+</div>
+
+<div class="main">
+  <div class="card">
+    <div class="card-top">
+      <div class="icon-wrap">📄</div>
+      <h2>ใบกำกับภาษีแบบเต็ม</h2>
+      <p>TAX INVOICE</p>
+    </div>
+
+    <div class="card-body" id="cardBody">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>กำลังโหลดข้อมูล...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  &copy; 2024 Unicon Container Services Co., Ltd. | เลขประจำตัวผู้เสียภาษี: 0105565XXXXXX
+</footer>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const invoiceId = params.get('id');
+
+  async function loadInvoice() {
+    if (!invoiceId) {
+      showError('ไม่พบข้อมูลใบกำกับภาษี', 'กรุณาตรวจสอบลิงก์ที่ได้รับจาก LINE');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/invoice/${invoiceId}`);
+      if (!res.ok) throw new Error('ไม่พบเอกสาร');
+      const inv = await res.json();
+      renderInvoiceInfo(inv);
+    } catch (err) {
+      showError('ไม่พบใบกำกับภาษี', 'ลิงก์อาจหมดอายุหรือไม่ถูกต้อง กรุณาติดต่อเจ้าหน้าที่');
+    }
+  }
+
+  function formatNum(n) {
+    return Number(n).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function renderInvoiceInfo(inv) {
+    document.getElementById('cardBody').innerHTML = `
+      <div class="invoice-info">
+        <div class="info-row">
+          <span class="label">เลขที่ใบกำกับภาษี</span>
+          <span class="value">${inv.invoiceNumber}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">วันที่</span>
+          <span class="value">${inv.date}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">ชื่อผู้ซื้อ</span>
+          <span class="value">${inv.customerName}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">เลขผู้เสียภาษี</span>
+          <span class="value">${inv.customerTaxId}</span>
+        </div>
+        <div class="info-row total">
+          <span class="label">ยอดรวมทั้งสิ้น</span>
+          <span class="value">${formatNum(inv.total)} บาท</span>
+        </div>
+      </div>
+
+      <div class="downloaded-badge" id="downloadedBadge">
+        ✅ ดาวน์โหลดสำเร็จ! ข้อมูลถูกบันทึกไปยังระบบบัญชีแล้ว
+      </div>
+
+      <button class="btn-download" id="btnDownload" onclick="downloadPdf('${inv.invoiceId}', '${inv.invoiceNumber}')">
+        <span>⬇️</span> ดาวน์โหลดใบกำกับภาษี PDF
+      </button>
+
+      <p class="download-note">
+        📋 ใบกำกับภาษีจะถูกบันทึกในระบบบัญชีเมื่อท่านดาวน์โหลด<br>
+        หากมีปัญหา กรุณาติดต่อ ${getCompanyContact()}
+      </p>
+    `;
+  }
+
+  function getCompanyContact() {
+    return '02-XXX-XXXX';
+  }
+
+  let downloading = false;
+
+  async function downloadPdf(invoiceId, invoiceNumber) {
+    if (downloading) return;
+    downloading = true;
+
+    const btn = document.getElementById('btnDownload');
+    btn.disabled = true;
+    btn.innerHTML = '<span>⏳</span> กำลังเตรียมไฟล์...';
+
+    try {
+      // Notify server (triggers Google Sheets)
+      const res = await fetch(`/api/download/${invoiceId}`, { method: 'POST' });
+      const data = await res.json();
+
+      if (data.pdfUrl) {
+        // Download the PDF
+        const a = document.createElement('a');
+        a.href = data.pdfUrl;
+        a.download = `ใบกำกับภาษี_${invoiceNumber}.pdf`;
+        a.click();
+
+        btn.innerHTML = '✅ ดาวน์โหลดสำเร็จ';
+        document.getElementById('downloadedBadge').classList.add('show');
+      } else {
+        throw new Error('ไม่พบไฟล์ PDF');
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '<span>⬇️</span> ดาวน์โหลดใบกำกับภาษี PDF';
+      alert('❌ เกิดข้อผิดพลาด: ' + err.message);
+      downloading = false;
+    }
+  }
+
+  function showError(title, msg) {
+    document.getElementById('cardBody').innerHTML = `
+      <div class="error-state">
+        <div class="emoji">⚠️</div>
+        <h3>${title}</h3>
+        <p>${msg}</p>
+      </div>
+    `;
+  }
+
+  loadInvoice();
+</script>
+</body>
+</html>
